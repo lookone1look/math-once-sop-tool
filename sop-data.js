@@ -1,7 +1,7 @@
 window.SOP_TOOL_DATA = {
   title: "数学只错一次【新版】任务 SOP 工具",
   subtitle: "音画同步板书值班版",
-  version: "2026-06-26 docx 图文校正版",
+  version: "2026-06-26 docx 附录校正版",
   source: "数学只错一次【新版】任务的操作SOP（音画同步板书）.docx",
   updateNote: "内容更新时优先改 sop-data.js；工具外壳不需要重做。",
   steps: [
@@ -14,30 +14,36 @@ window.SOP_TOOL_DATA = {
       entry: "任务列表勾选“新版”，点击【编辑】。",
       action: "进入编辑页后，先看页面内容结构是否与新版流程一致。",
       pass: [
-        "点击【编辑】按钮后，页面内容结构要与下方参考图一致。",
+        "先按“进入编辑界面参考图”找到新版任务并点击【编辑】。",
+        "点击【编辑】按钮后，页面内容结构要与“页面结构核对参考图”一致。",
         "如果不一致，重新执行这一步或者刷新后再判断。",
         "后续可以继续检查题干、答案、questionAnalysis、questionMethod 和 directorGuide。"
       ],
-      exception: "结构不一致时，重新进入或刷新；仍失败就去 1.3 做异常判断。",
+      exception: "结构不一致时，重新进入或刷新；仍失败就去 1.2 做异常判断。",
       media: [
         {
-          title: "1.1 新版任务进入成功参考图",
+          title: "1.1 进入编辑界面参考图",
           src: "assets/step-1-1-new-entry.png",
           alt: "任务列表勾选新版并进入编辑页后的结构参考图"
+        },
+        {
+          title: "1.1 页面结构核对参考图",
+          src: "assets/step-1-1-check-page.png",
+          alt: "正常待修改任务页面结构核对参考图"
         }
       ],
       fields: ["questionMethod", "directorGuide"],
       qa: [
-        ["看起来不像新版怎么办？", "先刷新或重新进入一次。还不像时，不直接改字段，进入 1.3 判断是否标异常。"],
+        ["看起来不像新版怎么办？", "先刷新或重新进入一次。还不像时，不直接改字段，进入 1.2 判断是否标异常。"],
         ["只看到部分字段能继续吗？", "先看 questionMethod 是否有 steps/content，directorGuide 是否为空；不满足正常结构就不要继续猜。"]
       ],
       tags: ["新版", "入口", "编辑", "异常", "steps", "content", "directorGuide"]
     },
     {
       id: "abnormal-task",
-      no: "1.3",
+      no: "1.2",
       title: "异常任务判断",
-      source: "原 SOP：1.3异常任务",
+      source: "原 SOP：异常任务",
       goal: "用三个硬条件判断是否标异常，不凭感觉。",
       action: "刷新或重新进入一次，再检查三个条件是否同时满足。",
       pass: [
@@ -49,8 +55,8 @@ window.SOP_TOOL_DATA = {
       exception: "三项同时满足：标记异常，标签为“其他”。不是同时满足但仍无法修改：联系鑫宇或刘蒙确认。",
       media: [
         {
-          title: "1.3 异常任务参考图",
-          src: "assets/step-1-3-abnormal-task.png",
+          title: "1.2 异常任务参考图",
+          src: "assets/step-1-2-abnormal-task.png",
           alt: "异常任务页面结构参考图"
         }
       ],
@@ -142,9 +148,7 @@ window.SOP_TOOL_DATA = {
       fields: ["questionMethod", "steps", "content", "label", "priority", "marks", "keySegments"],
       qa: [
         ["为什么不能一句写多步？", "因为 content 会完整写到板书上，多步塞在一句里，讲题时很难定位和强调。"],
-        ["marks 和 keySegments 怎么区分？", "marks 是写出来就持续高亮；keySegments 是模型讲到时可以临时强调。"],
-        ["LaTeX 看不懂怎么办？", "让豆包渲染，或用图片转 LaTeX，再人工核对公式含义。"],
-        ["新增 step 只能加到末尾怎么办？", "结构化编辑界面添加完成后，回主界面剪切并粘贴到正确位置；若后台已支持指定 step 下新增，优先用新功能。"]
+        ["marks 和 keySegments 怎么区分？", "marks 是写出来就持续高亮；keySegments 是模型讲到时可以临时强调。"]
       ],
       tags: ["questionMethod", "steps", "content", "label", "priority", "marks", "keySegments", "latex", "JSON", "板书", "高亮"]
     },
@@ -162,11 +166,6 @@ window.SOP_TOOL_DATA = {
       ],
       exception: "写成“计算结果不该出现”这类泛泛表达时，改成具体内容；method 大改后阶段不匹配时同步调整。",
       media: [
-        {
-          title: "3.3 directorGuide 字段结构参考图",
-          src: "assets/step-3-3-director-guide-structure.png",
-          alt: "stage 和 visibilityNote 字段结构参考图"
-        },
         {
           title: "3.3 directorGuide 修改入口参考图",
           src: "assets/step-3-3-edit-entry.png",
@@ -187,17 +186,29 @@ window.SOP_TOOL_DATA = {
       title: "检测 questionMethod",
       source: "原 SOP：4.检测与提交 / Method检测提示词",
       goal: "用 Method 检测提示词做最后复核，再人工确认。",
-      action: "下载《Method检测提示词.md》，复制内容贴给豆包，选择专家模式后发送，等豆包回复后再粘贴待检查字段。",
+      action: "下载《Method检测提示词.md》，复制内容贴给豆包，选择专家模式后发送，等豆包回复后再粘贴待检查字段。豆包会输出硬错误和建议两类错误，以及修改硬错误之后的全量正确内容，将正确内容黏贴到后台并检查硬错误是否正确修改，建议是否需要改。",
       pass: [
         "检测结果没有硬错误。",
         "风险项已人工确认或已修改。"
       ],
-      exception: "如果错误内容太多，手动改写很费时间：带清晰题目图片走老流程，用老流程输出放到结构化入参中，点击【解题】重新生成新流程内容，再点击【全部应用】。如果 LaTeX 不便观看或不知道公式是否正确：让豆包渲染，或用图片转 LaTeX，也可以自然语言描述给豆包让它输出 LaTeX 后人工检查。如果反复重新解题仍然无法得到正确结果：能搜到正确解法时，把正确解法截图、题干图片和错误 method 给 Method 检测提示词，并说清楚要怎么改；搜不到正确解法时，把完整 method、题目和你手动确认的正确解法给检测提示词，让它输出符合要求的内容，再人工检查。",
+      exceptionItems: [
+        {
+          title: "情况一：错误内容太多，手动改写很费时间",
+          body: "带清晰题目图片走老流程，用老流程输出放到结构化入参中，点击【解题】重新生成新流程内容，再点击【全部应用】。"
+        },
+        {
+          title: "情况二：LaTeX 格式不便观看或不知道公式是否正确",
+          body: "让豆包渲染，或用图片转 LaTeX；也可以自然语言描述给豆包，让它输出 LaTeX 后人工检查。"
+        },
+        {
+          title: "情况三：反复重新解题仍然无法得到正确结果",
+          body: "能搜到正确解法时，把正确解法截图、题干图片和错误 method 给 Method 检测提示词，并说清楚要怎么改；搜不到正确解法时，把完整 method、题目和你手动确认的正确解法给检测提示词，让它输出符合要求的内容，再人工检查。"
+        }
+      ],
       evidence: "检测提示词文件名、输入字段、豆包输出结论、最终修改记录。",
       fields: ["questionMethod", "steps", "label", "marks", "keySegments"],
       qa: [
-        ["豆包输出能直接覆盖吗？", "不能直接全量覆盖。它是复核建议，仍要按题目事实人工确认。"],
-        ["没有检测提示词文件怎么办？", "先去钉钉文档附件获取，不临时自编规则。"]
+        ["豆包输出能直接覆盖吗？", "不能直接全量覆盖。它是复核建议，仍要按题目事实人工确认。"]
       ],
       tags: ["Method检测", "豆包", "专家模式", "JSON", "LaTeX", "label", "marks", "keySegments"]
     },
@@ -253,14 +264,31 @@ window.SOP_TOOL_DATA = {
         "异常原因能回指到字段或页面状态。",
         "不是只凭主观感觉。"
       ],
-      exception: "同时满足 1.3 三项条件时，标签选“其他”；其他无法判断情况先确认后处理。",
+      exception: "同时满足 1.2 三项条件时，标签选“其他”；其他无法判断情况先确认后处理。",
       evidence: "页面截图、字段截图、联系确认记录、异常标签。",
       fields: ["questionMethod", "directorGuide"],
       qa: [
         ["能自己修但很费时间，要标异常吗？", "先看是否能走重生成或检测提示词辅助修。标异常要有字段或页面证据。"],
-        ["联系确认前要准备什么？", "准备页面截图、字段截图、你卡住的具体条件。"]
+        ["联系确认前要准备什么？", "带上任务 id 和卡住的具体条件。"]
       ],
       tags: ["标异常", "其他", "截图", "证据", "联系"]
+    }
+  ],
+  promptAppendix: [
+    {
+      title: "Method检测提示词.md",
+      file: "prompts/method-check.md",
+      usage: "用于检查 questionMethod.steps 的结构、内容、LaTeX、label、marks、keySegments。"
+    },
+    {
+      title: "directorGuide检测提示词.md",
+      file: "prompts/director-guide-check.md",
+      usage: "用于检查 directorGuide 的 stage 和 visibilityNote 是否合理。"
+    },
+    {
+      title: "老流程提示词.md",
+      file: "prompts/old-flow.md",
+      usage: "用于用清晰题目图片重新生成老流程解题内容，再辅助新流程修正。"
     }
   ],
   fields: {
@@ -344,7 +372,6 @@ window.SOP_TOOL_DATA = {
   },
   globalQa: [
     ["错误内容太多，手动改写很费时间", "带清晰题目图片走老流程，用老流程输出放到结构化入参中，点击【解题】重新生成新流程内容，再点击【全部应用】。"],
-    ["LaTeX 格式不便观看和修改", "让豆包渲染；或点击图片转 LaTeX，把正确内容转成 LaTeX；也可以自然语言描述给豆包，让它输出 LaTeX 后人工检查。"],
     ["反复重新解题仍无法得到正确结果", "如果能搜到正确解法，截图转 LaTeX 或带截图让检测提示词辅助改；如果搜不到，就把完整 method、题目和你的正确解法说明给检测提示词，再人工检查。"],
     ["method 大幅修改后 directorGuide 没同步", "把修正后的 method 贴给 directorGuide 检测提示词，让它根据 method 重新生成，再人工检查确认。"]
   ]

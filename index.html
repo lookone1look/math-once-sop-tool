@@ -47,7 +47,7 @@
   .topbar{
     display:flex;
     align-items:center;
-    justify-content:space-between;
+    justify-content:flex-start;
     gap:18px;
     padding:14px 18px;
     border-bottom:1px solid var(--line);
@@ -65,12 +65,6 @@
     margin:3px 0 0;
     color:var(--muted);
     font-size:13px;
-  }
-  .top-actions{
-    display:flex;
-    flex-wrap:wrap;
-    justify-content:flex-end;
-    gap:8px;
   }
   .btn{
     min-height:36px;
@@ -91,7 +85,7 @@
   }
   .shell{
     display:grid;
-    grid-template-columns:260px minmax(0,1fr) 340px;
+    grid-template-columns:310px minmax(0,1fr) 360px;
     min-height:0;
   }
   .sidebar,.sidepanel{
@@ -113,6 +107,10 @@
     font-size:13px;
     font-weight:700;
   }
+  .sidebar .panel-title{
+    font-size:17px;
+    color:#243244;
+  }
   .step-list{
     display:grid;
     gap:7px;
@@ -126,6 +124,7 @@
     background:transparent;
     color:#304054;
     text-align:left;
+    font-size:16px;
   }
   .step-tab:hover{
     background:var(--primary-2);
@@ -139,7 +138,7 @@
   .step-tab small{
     display:block;
     color:var(--muted);
-    font-size:12px;
+    font-size:13px;
     font-weight:400;
   }
   .workspace{
@@ -239,6 +238,19 @@
     background:var(--amber-2);
     color:#513600;
   }
+  .exception-list{
+    display:grid;
+    gap:10px;
+  }
+  .exception-item{
+    padding:10px 12px;
+    border:1px solid #edcd7b;
+    border-radius:6px;
+    background:#fffdf4;
+  }
+  .exception-item strong{
+    margin-bottom:4px;
+  }
   .block.evidence{
     border-color:#bdd5f1;
     background:var(--blue-2);
@@ -307,6 +319,17 @@
     border-radius:6px;
     background:#fff;
   }
+  .side-actions{
+    margin-bottom:18px;
+  }
+  .action-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+  }
+  .action-grid .btn{
+    width:100%;
+  }
   .result-list,.qa-list,.field-list{
     display:grid;
     gap:10px;
@@ -330,6 +353,50 @@
     border:1px solid var(--line);
     border-radius:6px;
     background:#fff;
+  }
+  .appendix-list{
+    display:grid;
+    gap:14px;
+  }
+  .prompt-card{
+    border:1px solid var(--line);
+    border-radius:8px;
+    background:#fff;
+    overflow:hidden;
+  }
+  .prompt-card-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    padding:12px 14px;
+    border-bottom:1px solid var(--line);
+    background:#f6f9fb;
+  }
+  .prompt-card-head strong{
+    display:block;
+  }
+  .prompt-card-head p{
+    margin:4px 0 0;
+    color:var(--muted);
+    font-size:13px;
+  }
+  .prompt-actions{
+    display:flex;
+    gap:6px;
+    flex-wrap:wrap;
+    justify-content:flex-end;
+  }
+  .prompt-text{
+    max-height:360px;
+    overflow:auto;
+    margin:0;
+    padding:12px 14px;
+    background:#101827;
+    color:#f8fafc;
+    white-space:pre-wrap;
+    font-size:13px;
+    line-height:1.55;
   }
   .section-gap{
     margin-top:18px;
@@ -385,7 +452,7 @@
   }
   @media(max-width:1080px){
     .shell{
-      grid-template-columns:220px minmax(0,1fr);
+      grid-template-columns:250px minmax(0,1fr);
     }
     .sidepanel{
       grid-column:1 / -1;
@@ -423,7 +490,7 @@
   }
   @media print{
     body{background:#fff}
-    .top-actions,.sidebar,.sidepanel,.actions,dialog{display:none}
+    .sidebar,.sidepanel,dialog{display:none}
     .shell{display:block}
     .workspace{padding:0}
     .step-card{border:0}
@@ -437,11 +504,6 @@
     <div class="brand">
       <h1 id="appTitle">数学只错一次 SOP 工具</h1>
       <p id="appMeta"></p>
-    </div>
-    <div class="top-actions">
-      <button class="btn" id="resetProgress" type="button">清空进度</button>
-      <button class="btn" id="printStep" type="button">打印当前步骤</button>
-      <button class="btn primary" id="openAllFields" type="button">字段说明</button>
     </div>
   </header>
 
@@ -490,22 +552,28 @@
 
           <div class="block warning">
             <strong>本步异常</strong>
-            <p id="stepException"></p>
+            <div id="stepException"></div>
           </div>
 
           <div class="media-list" id="stepMedia"></div>
           <div class="field-row" id="stepFields"></div>
         </div>
 
-          <div class="actions">
-            <button class="btn" id="prevStep" type="button">上一步</button>
-            <button class="btn primary" id="nextStep" type="button">下一步</button>
-            <button class="btn" id="focusSearch" type="button">查异常/QA</button>
-          </div>
       </article>
     </main>
 
     <aside class="sidepanel">
+      <div class="side-actions">
+        <p class="panel-title">操作</p>
+        <div class="action-grid">
+          <button class="btn" id="prevStep" type="button">上一步</button>
+          <button class="btn primary" id="nextStep" type="button">下一步</button>
+          <button class="btn" id="focusSearch" type="button">查异常/QA</button>
+          <button class="btn" id="openAllFields" type="button">字段说明</button>
+          <button class="btn" id="openAppendix" type="button">提示词附录</button>
+        </div>
+      </div>
+
       <p class="panel-title">搜索</p>
       <input class="search" id="searchBox" type="search" placeholder="搜：latex、marks、异常、directorGuide">
       <div class="result-list" id="searchResults"></div>
@@ -541,7 +609,17 @@
   </div>
 </dialog>
 
-<script src="sop-data.js?v=20260626-docx-fix1"></script>
+<dialog id="appendixDialog">
+  <div class="dialog-head">
+    <strong>提示词附录</strong>
+    <button class="btn" id="closeAppendix" type="button">关闭</button>
+  </div>
+  <div class="dialog-body">
+    <div class="appendix-list" id="appendixList"></div>
+  </div>
+</dialog>
+
+<script src="sop-data.js?v=20260626-appendix2"></script>
 <script>
 (function(){
   const data = window.SOP_TOOL_DATA;
@@ -595,6 +673,7 @@
       </div>
     `).join('');
     renderAllFields();
+    renderPromptAppendix();
   }
 
   function renderAllFields(){
@@ -608,6 +687,41 @@
         </div>
       `;
     }).join('');
+  }
+
+  async function renderPromptAppendix(){
+    if(!Array.isArray(data.promptAppendix)){
+      $('appendixList').innerHTML = '<div class="empty">暂无提示词附录。</div>';
+      return;
+    }
+    $('appendixList').innerHTML = data.promptAppendix.map((item, index) => `
+      <div class="prompt-card" data-prompt-card="${index}">
+        <div class="prompt-card-head">
+          <div>
+            <strong>${esc(item.title)}</strong>
+            <p>${esc(item.usage)}</p>
+          </div>
+          <div class="prompt-actions">
+            <a class="btn" href="${esc(cacheUrl(item.file))}" target="_blank" rel="noopener">打开</a>
+            <button class="btn" type="button" data-copy-prompt="${index}">复制</button>
+          </div>
+        </div>
+        <pre class="prompt-text" id="promptText${index}">正在加载...</pre>
+      </div>
+    `).join('');
+
+    await Promise.all(data.promptAppendix.map(async (item, index) => {
+      const target = $(`promptText${index}`);
+      try{
+        const response = await fetch(cacheUrl(item.file));
+        if(!response.ok) throw new Error(`HTTP ${response.status}`);
+        const text = await response.text();
+        item.loadedText = text;
+        target.textContent = text;
+      }catch(err){
+        target.textContent = `无法直接加载，请点击“打开”查看：${item.file}`;
+      }
+    }));
   }
 
   function renderStepList(){
@@ -631,9 +745,22 @@
     $('stepEntry').textContent = step.entry || '';
     $('stepAction').textContent = step.action;
     $('stepPass').innerHTML = step.pass.map(item => `<li>${esc(item)}</li>`).join('');
-    const hasException = Boolean(step.exception);
+    const hasException = Boolean(step.exception) || Array.isArray(step.exceptionItems);
     $('stepException').closest('.block').hidden = !hasException;
-    $('stepException').textContent = step.exception || '';
+    if(Array.isArray(step.exceptionItems)){
+      $('stepException').innerHTML = `
+        <div class="exception-list">
+          ${step.exceptionItems.map(item => `
+            <div class="exception-item">
+              <strong>${esc(item.title)}</strong>
+              <p>${esc(item.body)}</p>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }else{
+      $('stepException').textContent = step.exception || '';
+    }
     $('printMeta').textContent = `${data.title} · ${step.no} ${step.title}`;
     $('progressText').textContent = `${currentIndex + 1} / ${data.steps.length}`;
     $('progressBar').style.width = `${((currentIndex + 1) / data.steps.length) * 100}%`;
@@ -666,7 +793,15 @@
         type:'step',
         index,
         title:`${step.no} ${step.title}`,
-        body:[step.goal, step.entry || '', step.action, step.exception || '', (step.media || []).map(item => item.title).join(' '), step.tags.join(' ')].join(' ')
+        body:[
+          step.goal,
+          step.entry || '',
+          step.action,
+          step.exception || '',
+          (step.exceptionItems || []).map(item => `${item.title} ${item.body}`).join(' '),
+          (step.media || []).map(item => item.title).join(' '),
+          step.tags.join(' ')
+        ].join(' ')
       });
       step.qa.forEach(([q,a]) => {
         items.push({
@@ -781,26 +916,41 @@
     if(button) showField(button.dataset.field);
   });
 
+  $('appendixList').addEventListener('click', async event => {
+    const button = event.target.closest('[data-copy-prompt]');
+    if(!button) return;
+    const item = data.promptAppendix[Number(button.dataset.copyPrompt)];
+    if(!item) return;
+    try{
+      const text = item.loadedText || await (await fetch(cacheUrl(item.file))).text();
+      await navigator.clipboard.writeText(text);
+      button.textContent = '已复制';
+      setTimeout(() => button.textContent = '复制', 1200);
+    }catch(err){
+      button.textContent = '复制失败';
+      setTimeout(() => button.textContent = '复制', 1200);
+    }
+  });
+
   $('prevStep').addEventListener('click', () => setIndex(currentIndex - 1));
   $('nextStep').addEventListener('click', () => setIndex(currentIndex + 1));
   $('focusSearch').addEventListener('click', () => {
     $('searchBox').focus();
   });
   $('searchBox').addEventListener('input', renderSearch);
-  $('resetProgress').addEventListener('click', () => {
-    currentIndex = 0;
-    saveState();
-    render();
-  });
-  $('printStep').addEventListener('click', () => window.print());
   $('openAllFields').addEventListener('click', () => openDialog($('allFieldsDialog')));
+  $('openAppendix').addEventListener('click', () => openDialog($('appendixDialog')));
   $('closeField').addEventListener('click', () => $('fieldDialog').close());
   $('closeAllFields').addEventListener('click', () => $('allFieldsDialog').close());
+  $('closeAppendix').addEventListener('click', () => $('appendixDialog').close());
   $('fieldDialog').addEventListener('click', event => {
     if(event.target.id === 'fieldDialog') event.target.close();
   });
   $('allFieldsDialog').addEventListener('click', event => {
     if(event.target.id === 'allFieldsDialog') event.target.close();
+  });
+  $('appendixDialog').addEventListener('click', event => {
+    if(event.target.id === 'appendixDialog') event.target.close();
   });
 
   renderShell();
