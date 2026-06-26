@@ -136,17 +136,6 @@
     color:#0d514c;
     font-weight:700;
   }
-  .step-tab.done::after{
-    content:"已完成";
-    display:inline-block;
-    margin-top:5px;
-    padding:1px 6px;
-    border-radius:999px;
-    background:var(--green-2);
-    color:var(--green);
-    font-size:12px;
-    font-weight:700;
-  }
   .step-tab small{
     display:block;
     color:var(--muted);
@@ -508,12 +497,11 @@
           <div class="field-row" id="stepFields"></div>
         </div>
 
-        <div class="actions">
-          <button class="btn" id="prevStep" type="button">上一步</button>
-          <button class="btn primary" id="nextStep" type="button">下一步</button>
-          <button class="btn" id="toggleDone" type="button">标记完成</button>
-          <button class="btn" id="focusSearch" type="button">查异常/QA</button>
-        </div>
+          <div class="actions">
+            <button class="btn" id="prevStep" type="button">上一步</button>
+            <button class="btn primary" id="nextStep" type="button">下一步</button>
+            <button class="btn" id="focusSearch" type="button">查异常/QA</button>
+          </div>
       </article>
     </main>
 
@@ -553,9 +541,7 @@
   </div>
 </dialog>
 
-<script>
-document.write('<script src="sop-data.js?v=' + Date.now() + '"><\\/script>');
-</script>
+<script src="sop-data.js?v=20260626-docx-fix1"></script>
 <script>
 (function(){
   const data = window.SOP_TOOL_DATA;
@@ -566,9 +552,7 @@ document.write('<script src="sop-data.js?v=' + Date.now() + '"><\\/script>');
 
   const storagePrefix = 'math-once-sop-tool-v1';
   const stateKey = `${storagePrefix}:step`;
-  const doneKey = `${storagePrefix}:done`;
   let currentIndex = safeIndex(Number(localStorage.getItem(stateKey)));
-  let done = new Set(JSON.parse(localStorage.getItem(doneKey) || '[]'));
 
   const $ = id => document.getElementById(id);
 
@@ -593,7 +577,6 @@ document.write('<script src="sop-data.js?v=' + Date.now() + '"><\\/script>');
 
   function saveState(){
     localStorage.setItem(stateKey, String(currentIndex));
-    localStorage.setItem(doneKey, JSON.stringify(Array.from(done)));
   }
 
   function setIndex(index){
@@ -629,7 +612,7 @@ document.write('<script src="sop-data.js?v=' + Date.now() + '"><\\/script>');
 
   function renderStepList(){
     $('stepList').innerHTML = data.steps.map((step, index) => `
-      <button class="step-tab ${index === currentIndex ? 'active' : ''} ${done.has(step.id) ? 'done' : ''}" type="button" data-step="${index}">
+      <button class="step-tab ${index === currentIndex ? 'active' : ''}" type="button" data-step="${index}">
         ${esc(step.no)} ${esc(step.title)}
         <small>${esc(step.goal)}</small>
       </button>
@@ -656,7 +639,6 @@ document.write('<script src="sop-data.js?v=' + Date.now() + '"><\\/script>');
     $('progressBar').style.width = `${((currentIndex + 1) / data.steps.length) * 100}%`;
     $('prevStep').disabled = currentIndex === 0;
     $('nextStep').disabled = currentIndex === data.steps.length - 1;
-    $('toggleDone').textContent = done.has(step.id) ? '取消完成' : '标记完成';
 
     $('stepFields').innerHTML = step.fields.length
       ? step.fields.map(name => `<button class="field-chip" type="button" data-field="${esc(name)}">${esc(name)}</button>`).join('')
@@ -801,19 +783,12 @@ document.write('<script src="sop-data.js?v=' + Date.now() + '"><\\/script>');
 
   $('prevStep').addEventListener('click', () => setIndex(currentIndex - 1));
   $('nextStep').addEventListener('click', () => setIndex(currentIndex + 1));
-  $('toggleDone').addEventListener('click', () => {
-    const id = data.steps[currentIndex].id;
-    if(done.has(id)) done.delete(id);
-    else done.add(id);
-    saveState();
-    render();
-  });
   $('focusSearch').addEventListener('click', () => {
     $('searchBox').focus();
   });
   $('searchBox').addEventListener('input', renderSearch);
   $('resetProgress').addEventListener('click', () => {
-    done = new Set();
+    currentIndex = 0;
     saveState();
     render();
   });
