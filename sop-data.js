@@ -1,7 +1,7 @@
 window.SOP_TOOL_DATA = {
   title: "数学只错一次【新版】任务 SOP 工具",
   subtitle: "音画同步板书值班版",
-  version: "2026-06-26 流程层级校正版",
+  version: "2026-06-26 提示词入口校正版",
   source: "数学只错一次【新版】任务的操作SOP（音画同步板书）.docx",
   updateNote: "内容更新时优先改 sop-data.js；工具外壳不需要重做。",
   steps: [
@@ -181,7 +181,7 @@ window.SOP_TOOL_DATA = {
       title: "检测 questionMethod",
       source: "原 SOP：检测与提交 / Method检测提示词",
       goal: "用 Method 检测提示词做最后复核，再人工确认。",
-      action: "下载《Method检测提示词.md》，复制内容贴给豆包，选择专家模式后发送，等豆包回复后再粘贴待检查字段。豆包会输出硬错误和建议两类错误，以及修改硬错误之后的全量正确内容，将正确内容黏贴到后台并检查硬错误是否正确修改，建议是否需要改。",
+      action: "点击右上方「提示词附录」，打开《Method检测提示词.md》，复制内容贴给豆包，选择专家模式后发送，等豆包回复后再粘贴待检查字段。豆包会输出硬错误和建议两类错误，以及修改硬错误之后的全量正确内容，将正确内容黏贴到后台并检查硬错误是否正确修改，建议是否需要改。",
       pass: [
         "检测结果没有硬错误。",
         "风险项已人工确认或已修改。"
@@ -213,7 +213,7 @@ window.SOP_TOOL_DATA = {
       title: "检测 directorGuide",
       source: "原 SOP：检测与提交 / directorGuide检测提示词",
       goal: "用 directorGuide 检测提示词复核阶段划分和提前暴露控制，再人工确认。",
-      action: "下载《directorGuide检测提示词.md》，复制内容贴给豆包，选择专家模式后发送，等豆包回复后再粘贴待检查字段。",
+      action: "点击右上方「提示词附录」，打开《directorGuide检测提示词.md》，复制内容贴给豆包，选择专家模式后发送，等豆包回复后再粘贴待检查字段。",
       pass: [
         "阶段数量合理。",
         "每条 visibilityNote 指向具体内容。",
