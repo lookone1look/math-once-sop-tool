@@ -553,7 +553,9 @@
   </div>
 </dialog>
 
-<script src="sop-data.js"></script>
+<script>
+document.write('<script src="sop-data.js?v=' + Date.now() + '"><\\/script>');
+</script>
 <script>
 (function(){
   const data = window.SOP_TOOL_DATA;
@@ -582,6 +584,11 @@
       '"':'&quot;',
       "'":'&#39;'
     }[char]));
+  }
+
+  function cacheUrl(src){
+    const join = String(src).includes('?') ? '&' : '?';
+    return `${src}${join}v=${encodeURIComponent(data.version)}`;
   }
 
   function saveState(){
@@ -658,7 +665,7 @@
     $('stepMedia').innerHTML = (step.media || []).map(item => `
       <div class="media-card">
         <strong>${esc(item.title)}</strong>
-        <img src="${esc(item.src)}" alt="${esc(item.alt || item.title)}">
+        <img src="${esc(cacheUrl(item.src))}" alt="${esc(item.alt || item.title)}">
       </div>
     `).join('');
 
