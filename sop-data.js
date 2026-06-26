@@ -1,15 +1,15 @@
 window.SOP_TOOL_DATA = {
   title: "数学只错一次【新版】任务 SOP 工具",
   subtitle: "音画同步板书值班版",
-  version: "2026-06-26 docx 附录校正版",
+  version: "2026-06-26 流程层级校正版",
   source: "数学只错一次【新版】任务的操作SOP（音画同步板书）.docx",
   updateNote: "内容更新时优先改 sop-data.js；工具外壳不需要重做。",
   steps: [
     {
       id: "enter-new",
-      no: "1.1",
+      no: "1",
       title: "确认进入新版任务",
-      source: "原 SOP：1.进入题目编辑 / 1.1进入任务",
+      source: "原 SOP：进入题目编辑",
       goal: "先判断这道题能不能按新版流程继续做。",
       entry: "任务列表勾选“新版”，点击【编辑】。",
       action: "进入编辑页后，先看页面内容结构是否与新版流程一致。",
@@ -19,59 +19,54 @@ window.SOP_TOOL_DATA = {
         "如果不一致，重新执行这一步或者刷新后再判断。",
         "后续可以继续检查题干、答案、questionAnalysis、questionMethod 和 directorGuide。"
       ],
-      exception: "结构不一致时，重新进入或刷新；仍失败就去 1.2 做异常判断。",
+      exception: "结构不一致时，先重新进入或刷新；仍不一致时点击“异常判断”，按三个条件确认是否标异常。",
+      exceptionAction: {
+        label: "异常判断",
+        title: "异常任务判断",
+        action: "刷新或重新进入一次，再检查三个条件是否同时满足。",
+        pass: [
+          "页面结构要与异常任务参考图一致或高度相似。",
+          "是“新版”任务。",
+          "questionMethod 中没有 steps、content 字段。",
+          "directorGuide 仍为空。"
+        ],
+        result: "三项同时满足：标记异常，标签为“其他”。不是同时满足但仍无法修改：联系鑫宇或刘蒙确认。",
+        media: [
+          {
+            title: "异常任务参考图",
+            src: "assets/step-1-2-abnormal-task.png",
+            alt: "异常任务页面结构参考图"
+          }
+        ],
+        qa: [
+          ["只满足其中两项能标异常吗？", "不能直接标。带上任务 id 和卡住的具体条件，找鑫宇或刘蒙确认。"],
+          ["为什么要三项同时满足？", "因为这一步判断的是“新版任务但入参仍不是新流程”，单独一个现象不能证明。"]
+        ]
+      },
       media: [
         {
-          title: "1.1 进入编辑界面参考图",
+          title: "进入编辑界面参考图",
           src: "assets/step-1-1-new-entry.png",
           alt: "任务列表勾选新版并进入编辑页后的结构参考图"
         },
         {
-          title: "1.1 页面结构核对参考图",
+          title: "页面结构核对参考图",
           src: "assets/step-1-1-check-page.png",
           alt: "正常待修改任务页面结构核对参考图"
         }
       ],
       fields: ["questionMethod", "directorGuide"],
       qa: [
-        ["看起来不像新版怎么办？", "先刷新或重新进入一次。还不像时，不直接改字段，进入 1.2 判断是否标异常。"],
+        ["看起来不像新版怎么办？", "先刷新或重新进入一次。还不像时，不直接改字段，点击本步异常里的“异常判断”。"],
         ["只看到部分字段能继续吗？", "先看 questionMethod 是否有 steps/content，directorGuide 是否为空；不满足正常结构就不要继续猜。"]
       ],
       tags: ["新版", "入口", "编辑", "异常", "steps", "content", "directorGuide"]
     },
     {
-      id: "abnormal-task",
-      no: "1.2",
-      title: "异常任务判断",
-      source: "原 SOP：异常任务",
-      goal: "用三个硬条件判断是否标异常，不凭感觉。",
-      action: "刷新或重新进入一次，再检查三个条件是否同时满足。",
-      pass: [
-        "页面结构要与下方异常参考图一致或高度相似。",
-        "是“新版”任务。",
-        "questionMethod 中没有 steps、content 字段。",
-        "directorGuide 仍为空。"
-      ],
-      exception: "三项同时满足：标记异常，标签为“其他”。不是同时满足但仍无法修改：联系鑫宇或刘蒙确认。",
-      media: [
-        {
-          title: "1.2 异常任务参考图",
-          src: "assets/step-1-2-abnormal-task.png",
-          alt: "异常任务页面结构参考图"
-        }
-      ],
-      fields: ["questionMethod", "steps", "content", "directorGuide"],
-      qa: [
-        ["只满足其中两项能标异常吗？", "不能直接标。整理截图后找鑫宇或刘蒙确认。"],
-        ["为什么要三项同时满足？", "因为这一步判断的是“新版任务但入参仍不是新流程”，单独一个现象不能证明。"]
-      ],
-      tags: ["异常", "其他", "新版", "空值", "字段缺失"]
-    },
-    {
       id: "stem-answer",
-      no: "2.1",
+      no: "2",
       title: "检查题干与答案",
-      source: "原 SOP：2.【题干&答案】字段检查",
+      source: "原 SOP：题干&答案字段检查",
       goal: "检查题干和答案两个字段是否正确无误。",
       action: "检查题干是否完整、答案是否正确。简单错误直接手动改。",
       pass: [
@@ -81,7 +76,7 @@ window.SOP_TOOL_DATA = {
       exception: "错误较大时，用清晰题目图片重跑老提示词；复杂题答案暂时无法确定，可以等所有字段确认后再回查。",
       media: [
         {
-          title: "2.1 题干和答案字段参考图",
+          title: "题干和答案字段参考图",
           src: "assets/step-2-1-stem-answer.png",
           alt: "题干和答案字段所在位置参考图"
         }
@@ -95,9 +90,9 @@ window.SOP_TOOL_DATA = {
     },
     {
       id: "analysis",
-      no: "3.1",
+      no: "3",
       title: "检查 questionAnalysis",
-      source: "原 SOP：3.1分析(questionAnalysis)字段的修改及检查",
+      source: "原 SOP：分析(questionAnalysis)字段的修改及检查",
       goal: "确认解题思路正确，给讲题模型一个可靠方向。",
       action: "确认思路是否正确、是否符合题目条件。简单错误手动改；改动大时先用老流程提示词产出较正确版本再修。",
       pass: [
@@ -118,9 +113,9 @@ window.SOP_TOOL_DATA = {
     },
     {
       id: "method",
-      no: "3.2",
+      no: "4",
       title: "检查 questionMethod",
-      source: "原 SOP：3.2解答过程(questionMethod)字段的修改及检查",
+      source: "原 SOP：解答过程(questionMethod)字段的修改及检查",
       goal: "逐条检查板书素材，保证内容对、顺序对、标注对。",
       action: "逐条检查 content、label、priority、marks、keySegments。修改后用下方编译框预览，保存并刷新后确认效果。",
       pass: [
@@ -134,12 +129,12 @@ window.SOP_TOOL_DATA = {
       exception: "",
       media: [
         {
-          title: "3.2 点击修改按钮后可在编辑框内编辑",
+          title: "点击修改按钮后可在编辑框内编辑",
           src: "assets/step-3-2-edit-button.png",
           alt: "questionMethod 修改按钮参考图"
         },
         {
-          title: "3.2 也可以在内容框内直接编辑",
+          title: "也可以在内容框内直接编辑",
           src: "assets/step-3-2-inline-edit.png",
           alt: "questionMethod 内容框直接编辑参考图"
         }
@@ -154,9 +149,9 @@ window.SOP_TOOL_DATA = {
     },
     {
       id: "director-guide",
-      no: "3.3",
+      no: "5",
       title: "检查 directorGuide",
-      source: "原 SOP：3.3directorGuide字段的修改及检查",
+      source: "原 SOP：directorGuide字段的修改及检查",
       goal: "检查 directorGuide 的阶段数量是否合理，visibilityNote 是否指向具体内容；如果 questionMethod 大改过，要同步检查 directorGuide。",
       action: "一般不需要大幅修改；只有 questionMethod 做过大幅改动，或 visibilityNote 指向不明确时，才按 questionMethod 的修改方式进入内容框调整。",
       pass: [
@@ -167,7 +162,7 @@ window.SOP_TOOL_DATA = {
       exception: "写成“计算结果不该出现”这类泛泛表达时，改成具体内容；method 大改后阶段不匹配时同步调整。",
       media: [
         {
-          title: "3.3 directorGuide 修改入口参考图",
+          title: "directorGuide 修改入口参考图",
           src: "assets/step-3-3-edit-entry.png",
           alt: "directorGuide 编辑入口参考图"
         }
@@ -182,9 +177,9 @@ window.SOP_TOOL_DATA = {
     },
     {
       id: "method-review",
-      no: "4.1",
+      no: "6",
       title: "检测 questionMethod",
-      source: "原 SOP：4.检测与提交 / Method检测提示词",
+      source: "原 SOP：检测与提交 / Method检测提示词",
       goal: "用 Method 检测提示词做最后复核，再人工确认。",
       action: "下载《Method检测提示词.md》，复制内容贴给豆包，选择专家模式后发送，等豆包回复后再粘贴待检查字段。豆包会输出硬错误和建议两类错误，以及修改硬错误之后的全量正确内容，将正确内容黏贴到后台并检查硬错误是否正确修改，建议是否需要改。",
       pass: [
@@ -197,12 +192,12 @@ window.SOP_TOOL_DATA = {
           body: "带清晰题目图片走老流程，用老流程输出放到结构化入参中，点击【解题】重新生成新流程内容，再点击【全部应用】。"
         },
         {
-          title: "情况二：LaTeX 格式不便观看或不知道公式是否正确",
-          body: "让豆包渲染，或用图片转 LaTeX；也可以自然语言描述给豆包，让它输出 LaTeX 后人工检查。"
+          title: "情况二：反复重新解题仍然无法得到正确结果，但能搜到正确解法",
+          body: "把正确解法截图、题干图片和错误 method 给 Method 检测提示词，并说清楚要怎么改，让它输出符合要求的内容，再人工检查。"
         },
         {
-          title: "情况三：反复重新解题仍然无法得到正确结果",
-          body: "能搜到正确解法时，把正确解法截图、题干图片和错误 method 给 Method 检测提示词，并说清楚要怎么改；搜不到正确解法时，把完整 method、题目和你手动确认的正确解法给检测提示词，让它输出符合要求的内容，再人工检查。"
+          title: "情况三：反复重新解题仍然无法得到正确结果，也搜不到正确解法",
+          body: "把完整 method、题目和你手动确认的正确解法给 Method 检测提示词，让它输出符合要求的内容，再人工检查。"
         }
       ],
       evidence: "检测提示词文件名、输入字段、豆包输出结论、最终修改记录。",
@@ -214,9 +209,9 @@ window.SOP_TOOL_DATA = {
     },
     {
       id: "director-review",
-      no: "4.2",
+      no: "7",
       title: "检测 directorGuide",
-      source: "原 SOP：4.检测与提交 / directorGuide检测提示词",
+      source: "原 SOP：检测与提交 / directorGuide检测提示词",
       goal: "用 directorGuide 检测提示词复核阶段划分和提前暴露控制，再人工确认。",
       action: "下载《directorGuide检测提示词.md》，复制内容贴给豆包，选择专家模式后发送，等豆包回复后再粘贴待检查字段。",
       pass: [
@@ -224,7 +219,7 @@ window.SOP_TOOL_DATA = {
         "每条 visibilityNote 指向具体内容。",
         "与 questionMethod 顺序一致。"
       ],
-      exception: "如果 method 大幅修改后 directorGuide 没有同步变化：将修正后的 method 贴给 directorGuide 检测提示词，让它根据 method 重新生成，并做人工检查确认。检测后如果阶段过粗、过细或 visibilityNote 对象不明确，回到 3.3 修改后重新检查。",
+      exception: "如果 method 大幅修改后 directorGuide 没有同步变化：将修正后的 method 贴给 directorGuide 检测提示词，让它根据 method 重新生成，并做人工检查确认。检测后如果阶段过粗、过细或 visibilityNote 对象不明确，回到第 5 步修改后重新检查。",
       evidence: "检测提示词文件名、输入字段、豆包输出结论、最终修改记录。",
       fields: ["directorGuide", "stage", "visibilityNote", "questionMethod"],
       qa: [
@@ -235,9 +230,9 @@ window.SOP_TOOL_DATA = {
     },
     {
       id: "submit",
-      no: "5.1",
+      no: "8",
       title: "正常提交",
-      source: "原 SOP：4.检测与提交",
+      source: "原 SOP：检测与提交",
       goal: "确认字段、预览、复核都通过后再提交。",
       action: "保存，刷新确认编译效果，再提交。",
       pass: [
@@ -255,16 +250,16 @@ window.SOP_TOOL_DATA = {
     },
     {
       id: "mark-exception",
-      no: "5.2",
+      no: "9",
       title: "标异常",
-      source: "原 SOP：5.Q&A以及待优化点 / 异常口径",
+      source: "原 SOP：Q&A以及待优化点 / 异常口径",
       goal: "无法按正常流程处理时，给出可回查的异常证据。",
       action: "按异常处理口径留证据，必要时联系鑫宇或刘蒙确认。",
       pass: [
         "异常原因能回指到字段或页面状态。",
         "不是只凭主观感觉。"
       ],
-      exception: "同时满足 1.2 三项条件时，标签选“其他”；其他无法判断情况先确认后处理。",
+      exception: "同时满足异常判断三项条件时，标签选“其他”；其他无法判断情况先确认后处理。",
       evidence: "页面截图、字段截图、联系确认记录、异常标签。",
       fields: ["questionMethod", "directorGuide"],
       qa: [

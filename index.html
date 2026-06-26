@@ -287,6 +287,14 @@
     border-radius:6px;
     background:#f8fafc;
   }
+  .image-zoom{
+    display:block;
+    width:100%;
+    padding:0;
+    border:0;
+    background:transparent;
+    cursor:zoom-in;
+  }
   .field-row{
     display:flex;
     flex-wrap:wrap;
@@ -324,7 +332,7 @@
   }
   .action-grid{
     display:grid;
-    grid-template-columns:1fr 1fr;
+    grid-template-columns:1fr;
     gap:8px;
   }
   .action-grid .btn{
@@ -416,6 +424,22 @@
     box-shadow:0 22px 70px rgba(15,23,42,.26);
     color:var(--text);
   }
+  .wide-dialog{
+    width:min(960px,calc(100vw - 32px));
+  }
+  .image-dialog{
+    width:min(1180px,calc(100vw - 28px));
+  }
+  .image-dialog .dialog-body{
+    padding:10px;
+  }
+  .image-dialog img{
+    display:block;
+    width:100%;
+    max-height:calc(100vh - 140px);
+    object-fit:contain;
+    background:#f8fafc;
+  }
   dialog::backdrop{
     background:rgba(15,23,42,.35);
   }
@@ -446,6 +470,20 @@
   }
   .dialog-body dd{
     margin:0;
+  }
+  .dialog-media{
+    display:grid;
+    gap:12px;
+    margin-top:12px;
+  }
+  .dialog-media img{
+    display:block;
+    width:100%;
+    max-height:520px;
+    object-fit:contain;
+    border:1px solid #e2e8ef;
+    border-radius:6px;
+    background:#f8fafc;
   }
   .print-note{
     display:none;
@@ -559,6 +597,10 @@
           <div class="field-row" id="stepFields"></div>
         </div>
 
+        <div class="actions">
+          <button class="btn" id="prevStep" type="button">上一步</button>
+          <button class="btn primary" id="nextStep" type="button">下一步</button>
+        </div>
       </article>
     </main>
 
@@ -566,9 +608,6 @@
       <div class="side-actions">
         <p class="panel-title">操作</p>
         <div class="action-grid">
-          <button class="btn" id="prevStep" type="button">上一步</button>
-          <button class="btn primary" id="nextStep" type="button">下一步</button>
-          <button class="btn" id="focusSearch" type="button">查异常/QA</button>
           <button class="btn" id="openAllFields" type="button">字段说明</button>
           <button class="btn" id="openAppendix" type="button">提示词附录</button>
         </div>
@@ -609,6 +648,14 @@
   </div>
 </dialog>
 
+<dialog id="abnormalDialog" class="wide-dialog">
+  <div class="dialog-head">
+    <strong id="abnormalTitle">异常判断</strong>
+    <button class="btn" id="closeAbnormal" type="button">关闭</button>
+  </div>
+  <div class="dialog-body" id="abnormalBody"></div>
+</dialog>
+
 <dialog id="appendixDialog">
   <div class="dialog-head">
     <strong>提示词附录</strong>
@@ -619,7 +666,17 @@
   </div>
 </dialog>
 
-<script src="sop-data.js?v=20260626-appendix2"></script>
+<dialog id="imageDialog" class="image-dialog">
+  <div class="dialog-head">
+    <strong id="imageTitle">查看图片</strong>
+    <button class="btn" id="closeImage" type="button">关闭</button>
+  </div>
+  <div class="dialog-body">
+    <img id="imagePreview" src="" alt="">
+  </div>
+</dialog>
+
+<script src="sop-data.js?v=20260626-flow1"></script>
 <script>
 (function(){
   const data = window.SOP_TOOL_DATA;
@@ -745,7 +802,7 @@
     $('stepEntry').textContent = step.entry || '';
     $('stepAction').textContent = step.action;
     $('stepPass').innerHTML = step.pass.map(item => `<li>${esc(item)}</li>`).join('');
-    const hasException = Boolean(step.exception) || Array.isArray(step.exceptionItems);
+    const hasException = Boolean(step.exception) || Array.isArray(step.exceptionItems) || Boolean(step.exceptionAction);
     $('stepException').closest('.block').hidden = !hasException;
     if(Array.isArray(step.exceptionItems)){
       $('stepException').innerHTML = `
@@ -759,7 +816,10 @@
         </div>
       `;
     }else{
-      $('stepException').textContent = step.exception || '';
+      $('stepException').innerHTML = `
+        ${step.exception ? `<p>${esc(step.exception)}</p>` : ''}
+        ${step.exceptionAction ? `<button class="btn" type="button" data-open-abnormal>异常判断</button>` : ''}
+      `;
     }
     $('printMeta').textContent = `${data.title} · ${step.no} ${step.title}`;
     $('progressText').textContent = `${currentIndex + 1} / ${data.steps.length}`;
@@ -774,7 +834,9 @@
     $('stepMedia').innerHTML = (step.media || []).map(item => `
       <div class="media-card">
         <strong>${esc(item.title)}</strong>
-        <img src="${esc(cacheUrl(item.src))}" alt="${esc(item.alt || item.title)}">
+        <button class="image-zoom" type="button" data-image-src="${esc(cacheUrl(item.src))}" data-image-title="${esc(item.title)}" data-image-alt="${esc(item.alt || item.title)}">
+          <img src="${esc(cacheUrl(item.src))}" alt="${esc(item.alt || item.title)}">
+        </button>
       </div>
     `).join('');
 
@@ -799,6 +861,13 @@
           step.action,
           step.exception || '',
           (step.exceptionItems || []).map(item => `${item.title} ${item.body}`).join(' '),
+          step.exceptionAction ? [
+            step.exceptionAction.title,
+            step.exceptionAction.action,
+            step.exceptionAction.result,
+            (step.exceptionAction.pass || []).join(' '),
+            (step.exceptionAction.qa || []).map(item => item.join(' ')).join(' ')
+          ].join(' ') : '',
           (step.media || []).map(item => item.title).join(' '),
           step.tags.join(' ')
         ].join(' ')
@@ -883,6 +952,55 @@
     else dialog.setAttribute('open','open');
   }
 
+  function showImage(src, title, alt){
+    $('imageTitle').textContent = title || '查看图片';
+    $('imagePreview').src = src;
+    $('imagePreview').alt = alt || title || '参考图片';
+    openDialog($('imageDialog'));
+  }
+
+  function showAbnormal(){
+    const step = data.steps[currentIndex];
+    const abnormal = step.exceptionAction;
+    if(!abnormal) return;
+    $('abnormalTitle').textContent = abnormal.title || '异常判断';
+    $('abnormalBody').innerHTML = `
+      <div class="block">
+        <strong>操作</strong>
+        <p>${esc(abnormal.action)}</p>
+      </div>
+      <div class="block">
+        <strong>判断条件</strong>
+        <ul class="pass-list">
+          ${(abnormal.pass || []).map(item => `<li>${esc(item)}</li>`).join('')}
+        </ul>
+      </div>
+      <div class="block warning">
+        <strong>处理口径</strong>
+        <p>${esc(abnormal.result)}</p>
+      </div>
+      <div class="dialog-media">
+        ${(abnormal.media || []).map(item => `
+          <div class="media-card">
+            <strong>${esc(item.title)}</strong>
+            <button class="image-zoom" type="button" data-image-src="${esc(cacheUrl(item.src))}" data-image-title="${esc(item.title)}" data-image-alt="${esc(item.alt || item.title)}">
+              <img src="${esc(cacheUrl(item.src))}" alt="${esc(item.alt || item.title)}">
+            </button>
+          </div>
+        `).join('')}
+      </div>
+      <div class="qa-list section-gap">
+        ${(abnormal.qa || []).map(([q,a]) => `
+          <div class="mini-card">
+            <strong>${esc(q)}</strong>
+            <p>${esc(a)}</p>
+          </div>
+        `).join('')}
+      </div>
+    `;
+    openDialog($('abnormalDialog'));
+  }
+
   function openDialog(dialog){
     if(typeof dialog.showModal === 'function') dialog.showModal();
     else dialog.setAttribute('open','open');
@@ -911,6 +1029,15 @@
     if(button) showField(button.dataset.field);
   });
 
+  $('stepException').addEventListener('click', event => {
+    if(event.target.closest('[data-open-abnormal]')) showAbnormal();
+  });
+
+  document.addEventListener('click', event => {
+    const button = event.target.closest('[data-image-src]');
+    if(button) showImage(button.dataset.imageSrc, button.dataset.imageTitle, button.dataset.imageAlt);
+  });
+
   $('allFieldList').addEventListener('click', event => {
     const button = event.target.closest('[data-field]');
     if(button) showField(button.dataset.field);
@@ -934,23 +1061,28 @@
 
   $('prevStep').addEventListener('click', () => setIndex(currentIndex - 1));
   $('nextStep').addEventListener('click', () => setIndex(currentIndex + 1));
-  $('focusSearch').addEventListener('click', () => {
-    $('searchBox').focus();
-  });
   $('searchBox').addEventListener('input', renderSearch);
   $('openAllFields').addEventListener('click', () => openDialog($('allFieldsDialog')));
   $('openAppendix').addEventListener('click', () => openDialog($('appendixDialog')));
   $('closeField').addEventListener('click', () => $('fieldDialog').close());
   $('closeAllFields').addEventListener('click', () => $('allFieldsDialog').close());
+  $('closeAbnormal').addEventListener('click', () => $('abnormalDialog').close());
   $('closeAppendix').addEventListener('click', () => $('appendixDialog').close());
+  $('closeImage').addEventListener('click', () => $('imageDialog').close());
   $('fieldDialog').addEventListener('click', event => {
     if(event.target.id === 'fieldDialog') event.target.close();
   });
   $('allFieldsDialog').addEventListener('click', event => {
     if(event.target.id === 'allFieldsDialog') event.target.close();
   });
+  $('abnormalDialog').addEventListener('click', event => {
+    if(event.target.id === 'abnormalDialog') event.target.close();
+  });
   $('appendixDialog').addEventListener('click', event => {
     if(event.target.id === 'appendixDialog') event.target.close();
+  });
+  $('imageDialog').addEventListener('click', event => {
+    if(event.target.id === 'imageDialog') event.target.close();
   });
 
   renderShell();
