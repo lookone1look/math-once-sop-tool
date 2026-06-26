@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>数学只错一次 SOP 工具</title>
+<style>
+  :root{
+    --bg:#f4f6f8;
+    --panel:#ffffff;
+    --panel-2:#f9fbfc;
+    --text:#17212f;
+    --muted:#627082;
+    --line:#dce3ea;
+    --primary:#0f766e;
+    --primary-2:#e2f5f1;
+    --blue:#245a8d;
+    --blue-2:#edf6ff;
+    --amber:#8a5a00;
+    --amber-2:#fff6d8;
+    --red:#a83b2d;
+    --red-2:#fff0ed;
+    --green:#166534;
+    --green-2:#e7f7ec;
+  }
+  *{box-sizing:border-box}
+  html,body{min-height:100%}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",Arial,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    font-size:15px;
+    line-height:1.58;
+  }
+  button,input{
+    font:inherit;
+  }
+  button{
+    cursor:pointer;
+  }
+  .app{
+    min-height:100vh;
+    display:grid;
+    grid-template-rows:auto minmax(0,1fr);
+  }
+  .topbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:18px;
+    padding:14px 18px;
+    border-bottom:1px solid var(--line);
+    background:var(--panel);
+  }
+  .brand{
+    min-width:0;
+  }
+  .brand h1{
+    margin:0;
+    font-size:20px;
+    line-height:1.25;
+  }
+  .brand p{
+    margin:3px 0 0;
+    color:var(--muted);
+    font-size:13px;
+  }
+  .top-actions{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:flex-end;
+    gap:8px;
+  }
+  .btn{
+    min-height:36px;
+    padding:7px 11px;
+    border:1px solid var(--line);
+    border-radius:6px;
+    background:var(--panel);
+    color:var(--text);
+  }
+  .btn.primary{
+    border-color:var(--primary);
+    background:var(--primary);
+    color:#fff;
+  }
+  .btn:disabled{
+    cursor:not-allowed;
+    opacity:.5;
+  }
+  .shell{
+    display:grid;
+    grid-template-columns:260px minmax(0,1fr) 340px;
+    min-height:0;
+  }
+  .sidebar,.sidepanel{
+    min-height:0;
+    overflow:auto;
+    background:var(--panel);
+  }
+  .sidebar{
+    border-right:1px solid var(--line);
+    padding:14px;
+  }
+  .sidepanel{
+    border-left:1px solid var(--line);
+    padding:14px;
+  }
+  .panel-title{
+    margin:0 0 10px;
+    color:var(--muted);
+    font-size:13px;
+    font-weight:700;
+  }
+  .step-list{
+    display:grid;
+    gap:7px;
+  }
+  .step-tab{
+    width:100%;
+    min-height:54px;
+    padding:9px 10px;
+    border:1px solid transparent;
+    border-radius:8px;
+    background:transparent;
+    color:#304054;
+    text-align:left;
+  }
+  .step-tab:hover{
+    background:var(--primary-2);
+  }
+  .step-tab.active{
+    border-color:#8ac8c1;
+    background:var(--primary-2);
+    color:#0d514c;
+    font-weight:700;
+  }
+  .step-tab.done::after{
+    content:"已完成";
+    display:inline-block;
+    margin-top:5px;
+    padding:1px 6px;
+    border-radius:999px;
+    background:var(--green-2);
+    color:var(--green);
+    font-size:12px;
+    font-weight:700;
+  }
+  .step-tab small{
+    display:block;
+    color:var(--muted);
+    font-size:12px;
+    font-weight:400;
+  }
+  .workspace{
+    min-width:0;
+    min-height:0;
+    overflow:auto;
+    padding:20px;
+  }
+  .step-card{
+    max-width:940px;
+    margin:0 auto;
+    border:1px solid var(--line);
+    border-radius:8px;
+    background:var(--panel);
+    overflow:hidden;
+  }
+  .step-head{
+    display:flex;
+    justify-content:space-between;
+    gap:16px;
+    padding:18px 20px;
+    border-bottom:1px solid var(--line);
+    background:#f7fafb;
+  }
+  .step-kicker{
+    color:var(--primary);
+    font-size:13px;
+    font-weight:700;
+  }
+  .step-head h2{
+    margin:3px 0 6px;
+    font-size:26px;
+    line-height:1.25;
+  }
+  .source{
+    margin:0;
+    color:var(--muted);
+    font-size:13px;
+  }
+  .progress{
+    min-width:180px;
+    align-self:center;
+  }
+  .progress p{
+    margin:0 0 7px;
+    color:var(--muted);
+    font-size:13px;
+    text-align:right;
+  }
+  .bar{
+    width:100%;
+    height:8px;
+    border-radius:999px;
+    background:#e7edf2;
+    overflow:hidden;
+  }
+  .bar span{
+    display:block;
+    width:0;
+    height:100%;
+    background:var(--primary);
+  }
+  .step-body{
+    padding:18px 20px 20px;
+  }
+  .focus-box{
+    margin:0 0 14px;
+    padding:12px 14px;
+    border:1px solid #bcd9d5;
+    border-radius:8px;
+    background:#f2fbf9;
+  }
+  .focus-box strong,.block strong{
+    display:block;
+    margin-bottom:5px;
+  }
+  .focus-box p,.block p{
+    margin:0;
+  }
+  .grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+  }
+  .block{
+    margin:12px 0 0;
+    padding:12px 14px;
+    border:1px solid var(--line);
+    border-radius:8px;
+    background:var(--panel-2);
+  }
+  .block.warning{
+    border-color:#ecd18c;
+    background:var(--amber-2);
+    color:#513600;
+  }
+  .block.evidence{
+    border-color:#bdd5f1;
+    background:var(--blue-2);
+    color:#183b5e;
+  }
+  .pass-list{
+    margin:0;
+    padding-left:20px;
+  }
+  .field-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:7px;
+    margin-top:12px;
+  }
+  .field-chip{
+    min-height:32px;
+    padding:5px 9px;
+    border:1px solid #9fcfc9;
+    border-radius:6px;
+    background:#f0fbf9;
+    color:#0e5e58;
+    font-weight:700;
+  }
+  .actions{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    padding:14px 20px;
+    border-top:1px solid var(--line);
+    background:#fbfcfd;
+  }
+  .search{
+    width:100%;
+    min-height:38px;
+    margin:0 0 12px;
+    padding:8px 10px;
+    border:1px solid var(--line);
+    border-radius:6px;
+    background:#fff;
+  }
+  .result-list,.qa-list,.field-list{
+    display:grid;
+    gap:10px;
+  }
+  .mini-card{
+    padding:11px 12px;
+    border:1px solid var(--line);
+    border-radius:8px;
+    background:#fff;
+  }
+  .mini-card strong{
+    display:block;
+    margin-bottom:5px;
+  }
+  .mini-card p{
+    margin:0 0 8px;
+  }
+  .mini-card button{
+    min-height:30px;
+    padding:4px 8px;
+    border:1px solid var(--line);
+    border-radius:6px;
+    background:#fff;
+  }
+  .section-gap{
+    margin-top:18px;
+  }
+  .empty{
+    padding:10px 12px;
+    border:1px dashed #cad4de;
+    border-radius:8px;
+    color:var(--muted);
+    background:#fff;
+  }
+  dialog{
+    width:min(680px,calc(100vw - 32px));
+    padding:0;
+    border:0;
+    border-radius:8px;
+    box-shadow:0 22px 70px rgba(15,23,42,.26);
+    color:var(--text);
+  }
+  dialog::backdrop{
+    background:rgba(15,23,42,.35);
+  }
+  .dialog-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    padding:14px 16px;
+    border-bottom:1px solid var(--line);
+    background:#f5f8fa;
+  }
+  .dialog-head strong{
+    font-size:18px;
+  }
+  .dialog-body{
+    padding:16px;
+  }
+  .dialog-body dl{
+    display:grid;
+    grid-template-columns:96px 1fr;
+    gap:10px 14px;
+    margin:12px 0 0;
+  }
+  .dialog-body dt{
+    color:var(--muted);
+    font-weight:700;
+  }
+  .dialog-body dd{
+    margin:0;
+  }
+  .print-note{
+    display:none;
+  }
+  @media(max-width:1080px){
+    .shell{
+      grid-template-columns:220px minmax(0,1fr);
+    }
+    .sidepanel{
+      grid-column:1 / -1;
+      border-left:0;
+      border-top:1px solid var(--line);
+    }
+  }
+  @media(max-width:760px){
+    .topbar,.step-head{
+      display:block;
+    }
+    .top-actions,.progress{
+      margin-top:12px;
+    }
+    .progress p{
+      text-align:left;
+    }
+    .shell{
+      display:block;
+    }
+    .sidebar,.sidepanel{
+      border:0;
+      border-bottom:1px solid var(--line);
+      max-height:none;
+    }
+    .workspace{
+      padding:14px;
+    }
+    .grid{
+      grid-template-columns:1fr;
+    }
+    .dialog-body dl{
+      grid-template-columns:1fr;
+    }
+  }
+  @media print{
+    body{background:#fff}
+    .top-actions,.sidebar,.sidepanel,.actions,dialog{display:none}
+    .shell{display:block}
+    .workspace{padding:0}
+    .step-card{border:0}
+    .print-note{display:block}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand">
+      <h1 id="appTitle">数学只错一次 SOP 工具</h1>
+      <p id="appMeta"></p>
+    </div>
+    <div class="top-actions">
+      <button class="btn" id="resetProgress" type="button">清空进度</button>
+      <button class="btn" id="printStep" type="button">打印当前步骤</button>
+      <button class="btn primary" id="openAllFields" type="button">字段说明</button>
+    </div>
+  </header>
+
+  <div class="shell">
+    <aside class="sidebar">
+      <p class="panel-title">步骤目录</p>
+      <div class="step-list" id="stepList"></div>
+    </aside>
+
+    <main class="workspace">
+      <article class="step-card">
+        <div class="step-head">
+          <div>
+            <div class="step-kicker" id="stepKicker"></div>
+            <h2 id="stepTitle"></h2>
+            <p class="source" id="stepSource"></p>
+          </div>
+          <div class="progress">
+            <p id="progressText"></p>
+            <div class="bar" aria-hidden="true"><span id="progressBar"></span></div>
+          </div>
+        </div>
+
+        <div class="step-body">
+          <p class="print-note" id="printMeta"></p>
+          <div class="focus-box">
+            <strong>当前只做</strong>
+            <p id="stepGoal"></p>
+          </div>
+
+          <div class="grid">
+            <div class="block">
+              <strong>入口</strong>
+              <p id="stepEntry"></p>
+            </div>
+            <div class="block">
+              <strong>操作</strong>
+              <p id="stepAction"></p>
+            </div>
+          </div>
+
+          <div class="block">
+            <strong>通过标准</strong>
+            <ul class="pass-list" id="stepPass"></ul>
+          </div>
+
+          <div class="block warning">
+            <strong>本步异常</strong>
+            <p id="stepException"></p>
+          </div>
+
+          <div class="block evidence">
+            <strong>要留的证据</strong>
+            <p id="stepEvidence"></p>
+          </div>
+
+          <div class="field-row" id="stepFields"></div>
+        </div>
+
+        <div class="actions">
+          <button class="btn" id="prevStep" type="button">上一步</button>
+          <button class="btn primary" id="nextStep" type="button">下一步</button>
+          <button class="btn" id="toggleDone" type="button">标记完成</button>
+          <button class="btn" id="focusSearch" type="button">查异常/QA</button>
+        </div>
+      </article>
+    </main>
+
+    <aside class="sidepanel">
+      <p class="panel-title">搜索</p>
+      <input class="search" id="searchBox" type="search" placeholder="搜：latex、marks、异常、directorGuide">
+      <div class="result-list" id="searchResults"></div>
+
+      <div class="section-gap">
+        <p class="panel-title">本步 QA</p>
+        <div class="qa-list" id="stepQa"></div>
+      </div>
+
+      <div class="section-gap">
+        <p class="panel-title">常见问题</p>
+        <div class="qa-list" id="globalQa"></div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<dialog id="fieldDialog">
+  <div class="dialog-head">
+    <strong id="fieldTitle">字段说明</strong>
+    <button class="btn" id="closeField" type="button">关闭</button>
+  </div>
+  <div class="dialog-body" id="fieldBody"></div>
+</dialog>
+
+<dialog id="allFieldsDialog">
+  <div class="dialog-head">
+    <strong>字段说明</strong>
+    <button class="btn" id="closeAllFields" type="button">关闭</button>
+  </div>
+  <div class="dialog-body">
+    <div class="field-list" id="allFieldList"></div>
+  </div>
+</dialog>
+
+<script src="sop-data.js"></script>
+<script>
+(function(){
+  const data = window.SOP_TOOL_DATA;
+  if(!data){
+    document.body.innerHTML = '<div class="empty">没有找到 sop-data.js，请确认它和 index.html 放在同一个文件夹。</div>';
+    return;
+  }
+
+  const storagePrefix = 'math-once-sop-tool-v1';
+  const stateKey = `${storagePrefix}:step`;
+  const doneKey = `${storagePrefix}:done`;
+  let currentIndex = safeIndex(Number(localStorage.getItem(stateKey)));
+  let done = new Set(JSON.parse(localStorage.getItem(doneKey) || '[]'));
+
+  const $ = id => document.getElementById(id);
+
+  function safeIndex(value){
+    return Number.isInteger(value) && value >= 0 && value < data.steps.length ? value : 0;
+  }
+
+  function esc(value){
+    return String(value ?? '').replace(/[&<>"']/g, char => ({
+      '&':'&amp;',
+      '<':'&lt;',
+      '>':'&gt;',
+      '"':'&quot;',
+      "'":'&#39;'
+    }[char]));
+  }
+
+  function saveState(){
+    localStorage.setItem(stateKey, String(currentIndex));
+    localStorage.setItem(doneKey, JSON.stringify(Array.from(done)));
+  }
+
+  function setIndex(index){
+    currentIndex = safeIndex(index);
+    saveState();
+    render();
+  }
+
+  function renderShell(){
+    $('appTitle').textContent = data.title;
+    $('appMeta').textContent = `${data.subtitle} · ${data.version}`;
+    $('globalQa').innerHTML = data.globalQa.map(([q,a]) => `
+      <div class="mini-card">
+        <strong>${esc(q)}</strong>
+        <p>${esc(a)}</p>
+      </div>
+    `).join('');
+    renderAllFields();
+  }
+
+  function renderAllFields(){
+    $('allFieldList').innerHTML = Object.keys(data.fields).map(name => {
+      const field = data.fields[name];
+      return `
+        <div class="mini-card">
+          <strong>${esc(field.title)}</strong>
+          <p>${esc(field.plain)}</p>
+          <button type="button" data-field="${esc(name)}">打开</button>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function renderStepList(){
+    $('stepList').innerHTML = data.steps.map((step, index) => `
+      <button class="step-tab ${index === currentIndex ? 'active' : ''} ${done.has(step.id) ? 'done' : ''}" type="button" data-step="${index}">
+        ${esc(step.no)} ${esc(step.title)}
+        <small>${esc(step.goal)}</small>
+      </button>
+    `).join('');
+  }
+
+  function renderStep(){
+    const step = data.steps[currentIndex];
+    $('stepKicker').textContent = `步骤 ${step.no}`;
+    $('stepTitle').textContent = step.title;
+    $('stepSource').textContent = step.source;
+    $('stepGoal').textContent = step.goal;
+    $('stepEntry').textContent = step.entry;
+    $('stepAction').textContent = step.action;
+    $('stepPass').innerHTML = step.pass.map(item => `<li>${esc(item)}</li>`).join('');
+    $('stepException').textContent = step.exception;
+    $('stepEvidence').textContent = step.evidence;
+    $('printMeta').textContent = `${data.title} · ${step.no} ${step.title}`;
+    $('progressText').textContent = `${currentIndex + 1} / ${data.steps.length}`;
+    $('progressBar').style.width = `${((currentIndex + 1) / data.steps.length) * 100}%`;
+    $('prevStep').disabled = currentIndex === 0;
+    $('nextStep').disabled = currentIndex === data.steps.length - 1;
+    $('toggleDone').textContent = done.has(step.id) ? '取消完成' : '标记完成';
+
+    $('stepFields').innerHTML = step.fields.length
+      ? step.fields.map(name => `<button class="field-chip" type="button" data-field="${esc(name)}">${esc(name)}</button>`).join('')
+      : '<span class="empty">本步不需要看字段说明</span>';
+
+    $('stepQa').innerHTML = step.qa.map(([q,a]) => `
+      <div class="mini-card">
+        <strong>${esc(q)}</strong>
+        <p>${esc(a)}</p>
+      </div>
+    `).join('');
+  }
+
+  function buildSearchItems(){
+    const items = [];
+    data.steps.forEach((step, index) => {
+      items.push({
+        type:'step',
+        index,
+        title:`${step.no} ${step.title}`,
+        body:[step.goal, step.entry, step.action, step.exception, step.evidence, step.tags.join(' ')].join(' ')
+      });
+      step.qa.forEach(([q,a]) => {
+        items.push({
+          type:'step',
+          index,
+          title:`${step.no} ${q}`,
+          body:`${q} ${a} ${step.tags.join(' ')}`
+        });
+      });
+    });
+    Object.entries(data.fields).forEach(([name, field]) => {
+      items.push({
+        type:'field',
+        field:name,
+        title:`字段说明：${field.title}`,
+        body:[field.plain, field.what, field.affects, field.not].join(' ')
+      });
+    });
+    data.globalQa.forEach(([q,a]) => {
+      items.push({
+        type:'qa',
+        title:q,
+        body:a
+      });
+    });
+    return items;
+  }
+
+  const searchItems = buildSearchItems();
+
+  function renderSearch(){
+    const query = $('searchBox').value.trim().toLowerCase();
+    if(!query){
+      $('searchResults').innerHTML = '<div class="empty">输入关键词后，会显示对应步骤、字段说明或常见问题。</div>';
+      return;
+    }
+    const terms = query.split(/\s+/).filter(Boolean);
+    const results = searchItems.filter(item => {
+      const text = `${item.title} ${item.body}`.toLowerCase();
+      return terms.every(term => text.includes(term));
+    }).slice(0, 8);
+
+    if(!results.length){
+      $('searchResults').innerHTML = '<div class="empty">没搜到。换成字段名、异常现象或工具按钮名再试。</div>';
+      return;
+    }
+
+    $('searchResults').innerHTML = results.map(item => {
+      let action = '';
+      if(item.type === 'step'){
+        action = `<button type="button" data-step="${item.index}">跳到步骤</button>`;
+      }else if(item.type === 'field'){
+        action = `<button type="button" data-field="${esc(item.field)}">打开字段</button>`;
+      }
+      return `
+        <div class="mini-card">
+          <strong>${esc(item.title)}</strong>
+          <p>${esc(item.body).slice(0, 130)}${item.body.length > 130 ? '...' : ''}</p>
+          ${action}
+        </div>
+      `;
+    }).join('');
+  }
+
+  function showField(name){
+    const field = data.fields[name];
+    if(!field) return;
+    $('fieldTitle').textContent = field.title;
+    $('fieldBody').innerHTML = `
+      <p>${esc(field.plain)}</p>
+      <dl>
+        <dt>它是什么</dt><dd>${esc(field.what)}</dd>
+        <dt>影响什么</dt><dd>${esc(field.affects)}</dd>
+        <dt>不代表什么</dt><dd>${esc(field.not)}</dd>
+      </dl>
+    `;
+    const dialog = $('fieldDialog');
+    if(typeof dialog.showModal === 'function') dialog.showModal();
+    else dialog.setAttribute('open','open');
+  }
+
+  function openDialog(dialog){
+    if(typeof dialog.showModal === 'function') dialog.showModal();
+    else dialog.setAttribute('open','open');
+  }
+
+  function render(){
+    renderStepList();
+    renderStep();
+    renderSearch();
+  }
+
+  $('stepList').addEventListener('click', event => {
+    const button = event.target.closest('[data-step]');
+    if(button) setIndex(Number(button.dataset.step));
+  });
+
+  $('searchResults').addEventListener('click', event => {
+    const stepButton = event.target.closest('[data-step]');
+    const fieldButton = event.target.closest('[data-field]');
+    if(stepButton) setIndex(Number(stepButton.dataset.step));
+    if(fieldButton) showField(fieldButton.dataset.field);
+  });
+
+  $('stepFields').addEventListener('click', event => {
+    const button = event.target.closest('[data-field]');
+    if(button) showField(button.dataset.field);
+  });
+
+  $('allFieldList').addEventListener('click', event => {
+    const button = event.target.closest('[data-field]');
+    if(button) showField(button.dataset.field);
+  });
+
+  $('prevStep').addEventListener('click', () => setIndex(currentIndex - 1));
+  $('nextStep').addEventListener('click', () => setIndex(currentIndex + 1));
+  $('toggleDone').addEventListener('click', () => {
+    const id = data.steps[currentIndex].id;
+    if(done.has(id)) done.delete(id);
+    else done.add(id);
+    saveState();
+    render();
+  });
+  $('focusSearch').addEventListener('click', () => {
+    $('searchBox').focus();
+  });
+  $('searchBox').addEventListener('input', renderSearch);
+  $('resetProgress').addEventListener('click', () => {
+    done = new Set();
+    saveState();
+    render();
+  });
+  $('printStep').addEventListener('click', () => window.print());
+  $('openAllFields').addEventListener('click', () => openDialog($('allFieldsDialog')));
+  $('closeField').addEventListener('click', () => $('fieldDialog').close());
+  $('closeAllFields').addEventListener('click', () => $('allFieldsDialog').close());
+  $('fieldDialog').addEventListener('click', event => {
+    if(event.target.id === 'fieldDialog') event.target.close();
+  });
+  $('allFieldsDialog').addEventListener('click', event => {
+    if(event.target.id === 'allFieldsDialog') event.target.close();
+  });
+
+  renderShell();
+  render();
+})();
+</script>
+</body>
+</html>
