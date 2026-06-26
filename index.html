@@ -235,6 +235,9 @@
     grid-template-columns:1fr 1fr;
     gap:12px;
   }
+  .grid.single{
+    grid-template-columns:1fr;
+  }
   .block{
     margin:12px 0 0;
     padding:12px 14px;
@@ -252,9 +255,36 @@
     background:var(--blue-2);
     color:#183b5e;
   }
+  .block[hidden]{
+    display:none;
+  }
   .pass-list{
     margin:0;
     padding-left:20px;
+  }
+  .media-list{
+    display:grid;
+    gap:12px;
+    margin-top:12px;
+  }
+  .media-card{
+    padding:12px;
+    border:1px solid var(--line);
+    border-radius:8px;
+    background:#fff;
+  }
+  .media-card strong{
+    display:block;
+    margin-bottom:8px;
+  }
+  .media-card img{
+    display:block;
+    width:100%;
+    max-height:560px;
+    object-fit:contain;
+    border:1px solid #e2e8ef;
+    border-radius:6px;
+    background:#f8fafc;
   }
   .field-row{
     display:flex;
@@ -453,8 +483,8 @@
             <p id="stepGoal"></p>
           </div>
 
-          <div class="grid">
-            <div class="block">
+          <div class="grid" id="mainGrid">
+            <div class="block" id="entryBlock">
               <strong>入口</strong>
               <p id="stepEntry"></p>
             </div>
@@ -474,11 +504,7 @@
             <p id="stepException"></p>
           </div>
 
-          <div class="block evidence">
-            <strong>要留的证据</strong>
-            <p id="stepEvidence"></p>
-          </div>
-
+          <div class="media-list" id="stepMedia"></div>
           <div class="field-row" id="stepFields"></div>
         </div>
 
@@ -609,11 +635,15 @@
     $('stepTitle').textContent = step.title;
     $('stepSource').textContent = step.source;
     $('stepGoal').textContent = step.goal;
-    $('stepEntry').textContent = step.entry;
+    const hasEntry = Boolean(step.entry);
+    $('entryBlock').hidden = !hasEntry;
+    $('mainGrid').classList.toggle('single', !hasEntry);
+    $('stepEntry').textContent = step.entry || '';
     $('stepAction').textContent = step.action;
     $('stepPass').innerHTML = step.pass.map(item => `<li>${esc(item)}</li>`).join('');
-    $('stepException').textContent = step.exception;
-    $('stepEvidence').textContent = step.evidence;
+    const hasException = Boolean(step.exception);
+    $('stepException').closest('.block').hidden = !hasException;
+    $('stepException').textContent = step.exception || '';
     $('printMeta').textContent = `${data.title} · ${step.no} ${step.title}`;
     $('progressText').textContent = `${currentIndex + 1} / ${data.steps.length}`;
     $('progressBar').style.width = `${((currentIndex + 1) / data.steps.length) * 100}%`;
@@ -624,6 +654,13 @@
     $('stepFields').innerHTML = step.fields.length
       ? step.fields.map(name => `<button class="field-chip" type="button" data-field="${esc(name)}">${esc(name)}</button>`).join('')
       : '<span class="empty">本步不需要看字段说明</span>';
+
+    $('stepMedia').innerHTML = (step.media || []).map(item => `
+      <div class="media-card">
+        <strong>${esc(item.title)}</strong>
+        <img src="${esc(item.src)}" alt="${esc(item.alt || item.title)}">
+      </div>
+    `).join('');
 
     $('stepQa').innerHTML = step.qa.map(([q,a]) => `
       <div class="mini-card">
@@ -640,7 +677,7 @@
         type:'step',
         index,
         title:`${step.no} ${step.title}`,
-        body:[step.goal, step.entry, step.action, step.exception, step.evidence, step.tags.join(' ')].join(' ')
+        body:[step.goal, step.entry || '', step.action, step.exception || '', (step.media || []).map(item => item.title).join(' '), step.tags.join(' ')].join(' ')
       });
       step.qa.forEach(([q,a]) => {
         items.push({
