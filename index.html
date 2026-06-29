@@ -716,7 +716,7 @@
   </div>
 </dialog>
 
-<script src="sop-data.js?v=20260629-drag-pan"></script>
+<script src="sop-data.js?v=20260629-step0-filter"></script>
 <script>
 (function(){
   const data = window.SOP_TOOL_DATA;
@@ -725,7 +725,7 @@
     return;
   }
 
-  const storagePrefix = 'math-once-sop-tool-v1';
+  const storagePrefix = 'math-once-sop-tool-v2';
   const stateKey = `${storagePrefix}:step`;
   let currentIndex = safeIndex(Number(localStorage.getItem(stateKey)));
   let imageZoomStep = 0;
