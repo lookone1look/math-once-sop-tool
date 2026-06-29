@@ -451,6 +451,17 @@
     overflow:auto;
     padding:12px;
     background:#e9eef3;
+    cursor:grab;
+    user-select:none;
+    touch-action:none;
+    scrollbar-width:none;
+  }
+  .image-stage::-webkit-scrollbar{
+    width:0;
+    height:0;
+  }
+  .image-stage.dragging{
+    cursor:grabbing;
   }
   .image-dialog img{
     display:block;
@@ -705,7 +716,7 @@
   </div>
 </dialog>
 
-<script src="sop-data.js?v=20260629-case1-image"></script>
+<script src="sop-data.js?v=20260629-drag-pan"></script>
 <script>
 (function(){
   const data = window.SOP_TOOL_DATA;
@@ -722,6 +733,7 @@
   let imageNaturalHeight = 0;
   const minImageZoomStep = -3;
   const maxImageZoomStep = 3;
+  let imageDrag = null;
 
   const $ = id => document.getElementById(id);
 
@@ -1005,8 +1017,16 @@
   function changeImageZoom(delta){
     const nextStep = imageZoomStep + delta;
     if(nextStep < minImageZoomStep || nextStep > maxImageZoomStep) return;
+    const stage = $('imageStage');
+    const centerX = stage.scrollLeft + stage.clientWidth / 2;
+    const centerY = stage.scrollTop + stage.clientHeight / 2;
+    const previousScale = Math.pow(1.2, imageZoomStep);
     imageZoomStep = nextStep;
     applyImageZoom();
+    const nextScale = Math.pow(1.2, imageZoomStep);
+    const ratio = nextScale / previousScale;
+    stage.scrollLeft = centerX * ratio - stage.clientWidth / 2;
+    stage.scrollTop = centerY * ratio - stage.clientHeight / 2;
   }
 
   function showImage(src, title, alt){
@@ -1034,6 +1054,37 @@
     preview.src = src;
     if(preview.complete && preview.naturalWidth) handleLoad();
     openDialog($('imageDialog'));
+  }
+
+  function startImageDrag(event){
+    if(event.button !== 0) return;
+    const stage = $('imageStage');
+    imageDrag = {
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      startLeft: stage.scrollLeft,
+      startTop: stage.scrollTop
+    };
+    stage.classList.add('dragging');
+    stage.setPointerCapture(event.pointerId);
+    event.preventDefault();
+  }
+
+  function moveImageDrag(event){
+    if(!imageDrag || event.pointerId !== imageDrag.pointerId) return;
+    const stage = $('imageStage');
+    stage.scrollLeft = imageDrag.startLeft - (event.clientX - imageDrag.startX);
+    stage.scrollTop = imageDrag.startTop - (event.clientY - imageDrag.startY);
+    event.preventDefault();
+  }
+
+  function endImageDrag(event){
+    if(!imageDrag || event.pointerId !== imageDrag.pointerId) return;
+    const stage = $('imageStage');
+    imageDrag = null;
+    stage.classList.remove('dragging');
+    if(stage.hasPointerCapture(event.pointerId)) stage.releasePointerCapture(event.pointerId);
   }
 
   function showAbnormal(){
@@ -1141,6 +1192,14 @@
   $('closeImage').addEventListener('click', () => $('imageDialog').close());
   $('zoomImageOut').addEventListener('click', () => changeImageZoom(-1));
   $('zoomImageIn').addEventListener('click', () => changeImageZoom(1));
+  $('imageStage').addEventListener('pointerdown', startImageDrag);
+  $('imageStage').addEventListener('pointermove', moveImageDrag);
+  $('imageStage').addEventListener('pointerup', endImageDrag);
+  $('imageStage').addEventListener('pointercancel', endImageDrag);
+  $('imageStage').addEventListener('lostpointercapture', () => {
+    imageDrag = null;
+    $('imageStage').classList.remove('dragging');
+  });
   $('fieldDialog').addEventListener('click', event => {
     if(event.target.id === 'fieldDialog') event.target.close();
   });

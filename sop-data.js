@@ -1,7 +1,7 @@
 window.SOP_TOOL_DATA = {
   title: "数学只错一次【新版】任务 SOP 工具",
   subtitle: "音画同步板书值班版",
-  version: "2026-06-29 情况一配图校正版",
+  version: "2026-06-29 图片拖拽查看版",
   source: "数学只错一次【新版】任务的操作SOP（音画同步板书）.docx",
   updateNote: "内容更新时优先改 sop-data.js；工具外壳不需要重做。",
   steps: [
