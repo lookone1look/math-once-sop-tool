@@ -1,7 +1,7 @@
 window.SOP_TOOL_DATA = {
   title: "数学只错一次【新版】任务 SOP 工具",
   subtitle: "音画同步板书值班版",
-  version: "2026-06-29 图片查看校正版",
+  version: "2026-06-29 情况一配图校正版",
   source: "数学只错一次【新版】任务的操作SOP（音画同步板书）.docx",
   updateNote: "内容更新时优先改 sop-data.js；工具外壳不需要重做。",
   steps: [
@@ -192,9 +192,9 @@ window.SOP_TOOL_DATA = {
           body: "带清晰题目图片走老流程，用老流程输出放到结构化入参中，点击【解题】重新生成新流程内容，再点击【全部应用】。",
           media: [
             {
-              title: "情况一处理参考图：参参结构化后重新生成并全部应用",
-              src: "assets/qa-regenerate-method.png",
-              alt: "参参结构化、调用解题模型和全部应用的位置参考图"
+              title: "情况一处理参考图：入参结构化后重新生成并全部应用",
+              src: "assets/qa-regenerate-method-warning.png",
+              alt: "入参结构化、调用解题模型和全部应用的位置参考图"
             }
           ]
         },
